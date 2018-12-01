@@ -14,16 +14,6 @@
 static const char *hello_str = "Hello World!\n";
 static const char *hello_path = "/hello";
 
-static int my_mkdir(const char *path, mode_t mode)
-{
-	int res;
-
-	fprintf(FS.debug, "make dir: %s\n", path);
-	fflush(FS.debug);
-
-	return 0;
-}
-
 static int my_rmdir(const char *path)
 {
 	int res;
@@ -159,15 +149,6 @@ static int my_read(const char *path, char *buf, size_t size, off_t offset,
 	return size;
 }
 
-static struct fuse_operations my_oper = {
-	.getattr	= my_getattr,
-	.readdir	= my_readdir,
-	.rmdir		= my_rmdir,
-	.mkdir		= my_mkdir,
-	.open		= my_open,
-	.read		= my_read,
-};
-
 directory_entry* new_entry(char* name) {
 	directory_entry* ret = (directory_entry*) malloc(sizeof(directory_entry));
 	time_t t = time(NULL);
@@ -183,6 +164,41 @@ directory_entry* new_directory_entry(char* name) {
 	return ret;
 }
 
+static void get_parent_path(const char *path, char *parent) {
+	const char *next = path;
+	const char *i = path;
+	for(; *i != '\0'; ++i)
+		if(*i == '/') next = i;
+	if(next == path) {
+		parent[0] = '/';
+		parent[1] = '\0';
+	}
+	else {
+		strncpy(parent, path, next-path);
+		parent[next-path-1] = '\0';
+	}
+}
+static int my_mkdir(const char *path, mode_t mode) {
+	int res;
+
+	fprintf(FS.debug, "make dir: %s\n", path);
+	fflush(FS.debug);
+
+	char parent[256];
+	get_parent_path(path, parent);
+
+	directory_entry* dir = find_dir_by_path(parent);
+		
+	fprintf(FS.debug, "mkdir: %sfind the parent: %s\n", 
+			dir==NULL?"can't ":"can ", parent);
+	fflush(FS.debug);
+	if (dir == NULL) return -ENOENT;
+
+//	directory_entry* new_dir = new_directory_entry(name);
+
+	return 0;
+}
+
 char* disk_name = "mountpoint/disk"; 
 static void init() {
 	FS.root = new_directory_entry("");
@@ -191,6 +207,15 @@ static void init() {
 	int fd = open(FS.disk, O_CREAT | O_RDWR);
 	close(fd);
 }
+
+static struct fuse_operations my_oper = {
+	.getattr	= my_getattr,
+	.readdir	= my_readdir,
+	.rmdir		= my_rmdir,
+	.mkdir		= my_mkdir,
+	.open		= my_open,
+	.read		= my_read,
+};
 
 int main(int argc, char *argv[])
 {
