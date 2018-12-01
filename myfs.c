@@ -14,27 +14,19 @@
 static const char *hello_str = "Hello World!\n";
 static const char *hello_path = "/hello";
 
-static int hello_mkdir(const char *path, mode_t mode)
+static int my_mkdir(const char *path, mode_t mode)
 {
 	int res;
 
 	fprintf(FS.debug, "make dir: %s\n", path);
 	fflush(FS.debug);
 
-	res = mkdir(path, mode);
-	if (res == -1)
-		return -errno;
-
 	return 0;
 }
 
-static int hello_rmdir(const char *path)
+static int my_rmdir(const char *path)
 {
 	int res;
-
-	res = rmdir(path);
-	if (res == -1)
-		return -errno;
 
 	return 0;
 }
@@ -51,9 +43,6 @@ static int get_next_dir(const char* path, char* buf) {
 }
 
 static directory_entry* find_dir_by_path(const char* path) {
-	fprintf(FS.debug, "find dir by name: %s\n", path);
-	fflush(FS.debug);
-
 	const char* dir = path;
 	char buf[NAME_LENGTH];
 	directory_entry* ret = FS.root;
@@ -62,9 +51,6 @@ static directory_entry* find_dir_by_path(const char* path) {
 		return ret;
 
 	while(get_next_dir(dir, buf)) {
-		fprintf(FS.debug, "subdir name: %s\n", buf);
-		fflush(FS.debug);
-
 		int found = 0;
 		directory_entry* child = ret->child_first;
 		for(; child; child=child->next) {
@@ -81,66 +67,86 @@ static directory_entry* find_dir_by_path(const char* path) {
 	return ret;
 }
 
-static int hello_getattr(const char *path, struct stat *stbuf)
+static int my_getattr(const char *path, struct stat *stbuf)
 {
 	int res = 0;
 	directory_entry* entry = find_dir_by_path(path);
 	
-	if(entry == NULL)
-		return -ENOENT;
+	fprintf(FS.debug, "getattr: %sfind the entry: %s\n", 
+			entry==NULL?"can't ":"can ", path);
+	fflush(FS.debug);
+
+	if(entry == NULL) return -ENOENT;
 
 	memset(stbuf, 0, sizeof(struct stat));
-	if (strcmp(path, "/") == 0) {
-		stbuf->st_mode = S_IFDIR | 0755;
-		stbuf->st_nlink = 2;
-	} else {
-		stbuf->st_mode = S_IFREG | 0444;
-		stbuf->st_nlink = 1;
-		stbuf->st_size = strlen(hello_str);
-	}
+	stbuf->st_mode = 0755;
+   	if(entry->flags == 1) stbuf->st_mode |= S_IFDIR;
+	stbuf->st_nlink = 2;
+	stbuf->st_size = entry->file_length;
 
 	return res;
 }
 
-static int hello_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
+static int my_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 			 off_t offset, struct fuse_file_info *fi)
 {
 	(void) offset;
 	(void) fi;
 
-	find_dir_by_path(path);
-/*
-	if (strcmp(path, "/") != 0)
-		return -ENOENT;
-*/
-	filler(buf, ".", NULL, 0);
-	filler(buf, "..", NULL, 0);
-	filler(buf, hello_path + 1, NULL, 0);
+	directory_entry* dir = find_dir_by_path(path);
+
+	fprintf(FS.debug, "readdir: %sfind the entry: %s\n", 
+			dir==NULL?"can't ":"can ", path);
+	fflush(FS.debug);
+
+	if (dir == NULL) return -ENOENT;
+
+	directory_entry* child = dir->child_first;
+
+	for(;child != NULL; child = child->next) {
+		fprintf(FS.debug, "readdir: child: %s\n", 
+				child->name);
+		fflush(FS.debug);
+
+		filler(buf, child->name, NULL, 0);
+	}
 
 	return 0;
 }
 
-static int hello_open(const char *path, struct fuse_file_info *fi)
+static int my_open(const char *path, struct fuse_file_info *fi)
 {
+	directory_entry* entry = find_dir_by_path(path);
 	
-	find_dir_by_path(path);
+	fprintf(FS.debug, "open: %sfind the entry: %s\n", 
+			entry==NULL?"can't ":"can ", path);
+	fflush(FS.debug);
 
+	if (entry == NULL) return -ENOENT;
+
+	/*
 	if (strcmp(path, hello_path) != 0)
 		return -ENOENT;
 
 	if ((fi->flags & 3) != O_RDONLY)
 		return -EACCES;
-
+*/
 	return 0;
 }
 
-static int hello_read(const char *path, char *buf, size_t size, off_t offset,
+static int my_read(const char *path, char *buf, size_t size, off_t offset,
 		      struct fuse_file_info *fi)
 {
 	size_t len;
 	(void) fi;
-	if(strcmp(path, hello_path) != 0)
-		return -ENOENT;
+		
+	directory_entry* entry = find_dir_by_path(path);
+	
+	fprintf(FS.debug, "read: %sfind the entry: %s\n", 
+			entry==NULL?"can't ":"can ", path);
+	fflush(FS.debug);
+
+	if (entry == NULL) return -ENOENT;
 
 	len = strlen(hello_str);
 	if (offset < len) {
@@ -153,25 +159,33 @@ static int hello_read(const char *path, char *buf, size_t size, off_t offset,
 	return size;
 }
 
-static struct fuse_operations hello_oper = {
-	.getattr	= hello_getattr,
-	.readdir	= hello_readdir,
-	.open		= hello_open,
-	.read		= hello_read,
-	.rmdir		= hello_rmdir,
-	.mkdir		= hello_mkdir,
+static struct fuse_operations my_oper = {
+	.getattr	= my_getattr,
+	.readdir	= my_readdir,
+	.rmdir		= my_rmdir,
+	.mkdir		= my_mkdir,
+	.open		= my_open,
+	.read		= my_read,
 };
 
-void directory_entry_init(directory_entry* entry) {
+directory_entry* new_entry(char* name) {
+	directory_entry* ret = (directory_entry*) malloc(sizeof(directory_entry));
 	time_t t = time(NULL);
-	entry->create_t = entry->modify_t = entry->access_t = t;
+	strcpy(ret->name, name);
+	ret->create_t = ret->modify_t = ret->access_t = t;
+	ret->flags = 1;
+	return ret;
 }
 
+directory_entry* new_directory_entry(char* name) {
+	directory_entry* ret = new_entry(name);
+	ret->child_first = new_entry(".");
+	return ret;
+}
 
 char* disk_name = "mountpoint/disk"; 
 static void init() {
-	FS.root = (directory_entry*) malloc(sizeof(directory_entry));
-	directory_entry_init(FS.root);
+	FS.root = new_directory_entry("");
 	FS.disk = disk_name;
 	FS.debug = fopen("debug", "w+");
 	int fd = open(FS.disk, O_CREAT | O_RDWR);
@@ -181,5 +195,5 @@ static void init() {
 int main(int argc, char *argv[])
 {
 	init();
-	return fuse_main(argc, argv, &hello_oper, NULL);
+	return fuse_main(argc, argv, &my_oper, NULL);
 }

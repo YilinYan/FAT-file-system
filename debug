@@ -1,0 +1,38 @@
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can't find the entry: /hhh
+getattr: can't find the entry: /hhh
+getattr: can find the entry: /
