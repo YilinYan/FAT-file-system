@@ -13,6 +13,7 @@ typedef struct _directory_entry {
 	uint8_t flags;			// 0 for file, 1 for directory		
 	struct _directory_entry* next;
 	struct _directory_entry* child_first;
+	struct _directory_entry* real_dir;
 } directory_entry;
 
 struct _global_variables {

@@ -21,15 +21,18 @@ static int my_rmdir(const char *path)
 	return 0;
 }
 
-static int get_next_dir(const char* path, char* buf) {
-	if(path[0] != '/' || path[1] == '\0') return 0;
+static const char* get_next_dir(const char* path, char* buf) {
+	// not /... or is / or is \0
+	if(path[0] != '/' || path[1] == '\0'
+			|| path[0] == '\0') return NULL;
 	
 	const char* next = path + 1;
 	while(*next != '/' && *next != '\0') ++next;
 	strncpy(buf, path+1, next-path);
   	buf[next-path-1] = '\0';
 	path = next;
-	return 1;	
+	
+	return path;	
 }
 
 static directory_entry* find_dir_by_path(const char* path) {
@@ -40,17 +43,34 @@ static directory_entry* find_dir_by_path(const char* path) {
 	if(strcmp("/", path) == 0 || path[0] == '\0')
 		return ret;
 
-	while(get_next_dir(dir, buf)) {
+	fprintf(FS.debug, "\tfind dir by path: %s\n", path);
+	fflush(FS.debug);
+
+	while((dir = get_next_dir(dir, buf)) != NULL) {
+		fprintf(FS.debug, "\t%s\t%s", dir, buf);
+		fflush(FS.debug);
+
 		int found = 0;
 		directory_entry* child = ret->child_first;
 		for(; child; child=child->next) {
-			if(strcmp(child->name, buf)) {
+			if(strcmp(child->name, buf) == 0) {
 				ret = child;
+				// if .. , redirect to real dir 
+				if(strcmp(buf, "..") == 0) 
+					ret = child->real_dir;
+				
+				fprintf(FS.debug, "\tgot it\n");
+				fflush(FS.debug);
+				
 				found = 1;
 				break;
 			}
 		}
 		if(found == 1) continue;
+		
+		fprintf(FS.debug, "\tungot it\n");
+		fflush(FS.debug);		
+
 		return NULL;
 	}
 
@@ -164,28 +184,51 @@ directory_entry* new_directory_entry(char* name) {
 	return ret;
 }
 
-static void get_parent_path(const char *path, char *parent) {
+static void get_parent_path(const char *path, char *parent, char *name) {
 	const char *next = path;
 	const char *i = path;
 	for(; *i != '\0'; ++i)
 		if(*i == '/') next = i;
+	// path is /xxx
 	if(next == path) {
 		parent[0] = '/';
 		parent[1] = '\0';
 	}
+	// path is /xxx/xxx/...
 	else {
 		strncpy(parent, path, next-path);
 		parent[next-path-1] = '\0';
 	}
+	//get the new dir name
+	strncpy(name, next + 1, i-next);
+	name[i-next-1] = '\0';
 }
+
+static void add_sub_dir(directory_entry* dir, directory_entry* child) {
+	fprintf(FS.debug, "add sub dir: %s -> %s\n", 
+			dir->name, child->name);
+	fflush(FS.debug);
+	
+	// add child to dir's last child
+	directory_entry* last = dir->child_first;
+	while(last->next) last = last->next;
+	last->next = child;
+
+	// add .. to child, connect .. to dir
+	last = child->child_first;
+	while(last->next) last = last->next;
+	last->next = new_entry("..");
+	last->next->real_dir = dir;
+}
+
 static int my_mkdir(const char *path, mode_t mode) {
 	int res;
 
-	fprintf(FS.debug, "make dir: %s\n", path);
+	fprintf(FS.debug, "mkdir: %s\n", path);
 	fflush(FS.debug);
 
-	char parent[256];
-	get_parent_path(path, parent);
+	char parent[256], name[NAME_LENGTH];
+	get_parent_path(path, parent, name);
 
 	directory_entry* dir = find_dir_by_path(parent);
 		
@@ -194,7 +237,8 @@ static int my_mkdir(const char *path, mode_t mode) {
 	fflush(FS.debug);
 	if (dir == NULL) return -ENOENT;
 
-//	directory_entry* new_dir = new_directory_entry(name);
+	directory_entry* new_dir = new_directory_entry(name);
+	add_sub_dir(dir, new_dir);
 
 	return 0;
 }
