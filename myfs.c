@@ -54,17 +54,59 @@ static int hello_getattr(const char *path, struct stat *stbuf)
 	return res;
 }
 
+
+static int get_next_dir(const char* path, char* buf) {
+	if(path[0] != '/' || path[1] == '\0') return 0;
+	
+	const char* next = path + 1;
+	while(*next != '/' && *next != '\0') ++next;
+	strncpy(buf, path+1, next-path);
+  	buf[next-path-1] = '\0';
+	path = next;
+	return 1;	
+}
+
+static directory_entry* find_dir_by_path(const char* path) {
+	fprintf(FS.debug, "find dir by name: %s\n", path);
+	fflush(FS.debug);
+
+	const char* dir = path;
+	char buf[NAME_LENGTH];
+	directory_entry* ret = FS.root;
+
+	if(strcmp("/", path) == 0 || path[0] == '\0')
+		return ret;
+
+	while(get_next_dir(dir, buf)) {
+		fprintf(FS.debug, "subdir name: %s\n", buf);
+		fflush(FS.debug);
+
+		int found = 0;
+		directory_entry* child = ret->child_first;
+		for(; child; child=child->next) {
+			if(strcmp(child->name, buf)) {
+				ret = child;
+				found = 1;
+				break;
+			}
+		}
+		if(found == 1) continue;
+		return NULL;
+	}
+
+	return ret;
+}
+
 static int hello_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 			 off_t offset, struct fuse_file_info *fi)
 {
 	(void) offset;
 	(void) fi;
 
+	find_dir_by_path(path);
+
 	if (strcmp(path, "/") != 0)
 		return -ENOENT;
-
-	fprintf(FS.debug, "read dir %s\n", path);
-	fflush(FS.debug);
 
 	filler(buf, ".", NULL, 0);
 	filler(buf, "..", NULL, 0);
@@ -75,6 +117,9 @@ static int hello_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
 static int hello_open(const char *path, struct fuse_file_info *fi)
 {
+	
+	find_dir_by_path(path);
+
 	if (strcmp(path, hello_path) != 0)
 		return -ENOENT;
 
@@ -117,11 +162,15 @@ void directory_entry_init(directory_entry* entry) {
 	entry->create_t = entry->modify_t = entry->access_t = t;
 }
 
+
+char* disk_name = "mountpoint/disk"; 
 static void init() {
 	FS.root = (directory_entry*) malloc(sizeof(directory_entry));
 	directory_entry_init(FS.root);
-	FS.disk = open("mountpoint", O_CREAT | O_RDWR);
+	FS.disk = disk_name;
 	FS.debug = fopen("debug", "w+");
+	int fd = open(FS.disk, O_CREAT | O_RDWR);
+	close(fd);
 }
 
 int main(int argc, char *argv[])

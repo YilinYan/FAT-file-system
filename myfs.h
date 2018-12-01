@@ -17,7 +17,7 @@ typedef struct _directory_entry {
 
 struct _global_variables {
 	directory_entry* root; 	// directory_entry of root
-	int disk;				// fd of disk file
+	char* disk;				// name of disk file
 	FILE* debug;		    // FILE* of debug file
 } FS;
 
