@@ -18,6 +18,9 @@ static int hello_mkdir(const char *path, mode_t mode)
 {
 	int res;
 
+	fprintf(FS.debug, "make dir: %s\n", path);
+	fflush(FS.debug);
+
 	res = mkdir(path, mode);
 	if (res == -1)
 		return -errno;
@@ -35,25 +38,6 @@ static int hello_rmdir(const char *path)
 
 	return 0;
 }
-
-static int hello_getattr(const char *path, struct stat *stbuf)
-{
-	int res = 0;
-
-	memset(stbuf, 0, sizeof(struct stat));
-	if (strcmp(path, "/") == 0) {
-		stbuf->st_mode = S_IFDIR | 0755;
-		stbuf->st_nlink = 2;
-	} else if (strcmp(path, hello_path) == 0) {
-		stbuf->st_mode = S_IFREG | 0444;
-		stbuf->st_nlink = 1;
-		stbuf->st_size = strlen(hello_str);
-	} else
-		res = -ENOENT;
-
-	return res;
-}
-
 
 static int get_next_dir(const char* path, char* buf) {
 	if(path[0] != '/' || path[1] == '\0') return 0;
@@ -97,6 +81,27 @@ static directory_entry* find_dir_by_path(const char* path) {
 	return ret;
 }
 
+static int hello_getattr(const char *path, struct stat *stbuf)
+{
+	int res = 0;
+	directory_entry* entry = find_dir_by_path(path);
+	
+	if(entry == NULL)
+		return -ENOENT;
+
+	memset(stbuf, 0, sizeof(struct stat));
+	if (strcmp(path, "/") == 0) {
+		stbuf->st_mode = S_IFDIR | 0755;
+		stbuf->st_nlink = 2;
+	} else {
+		stbuf->st_mode = S_IFREG | 0444;
+		stbuf->st_nlink = 1;
+		stbuf->st_size = strlen(hello_str);
+	}
+
+	return res;
+}
+
 static int hello_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 			 off_t offset, struct fuse_file_info *fi)
 {
@@ -104,10 +109,10 @@ static int hello_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	(void) fi;
 
 	find_dir_by_path(path);
-
+/*
 	if (strcmp(path, "/") != 0)
 		return -ENOENT;
-
+*/
 	filler(buf, ".", NULL, 0);
 	filler(buf, "..", NULL, 0);
 	filler(buf, hello_path + 1, NULL, 0);
