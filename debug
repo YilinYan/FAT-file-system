@@ -1,22 +1,40 @@
 getattr: can find the entry: /
 getattr: can find the entry: /
-	find dir by path: /hhh
-		hhh	ungot it
-getattr: can't find the entry: /hhh
-mkdir: /hhh
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+	find dir by path: /junk
+		junk	ungot it
+getattr: can't find the entry: /junk
+mkdir: /junk
 mkdir: can find the parent: /
-add sub dir:  -> hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-readdir: can find the entry: /
-readdir: child: .
-readdir: child: hhh
+add sub dir:  -> junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
 getattr: can find the entry: /
 getattr: can find the entry: /
 getattr: can find the entry: /
@@ -25,100 +43,194 @@ getattr: can find the entry: /
 getattr: can find the entry: /
 readdir: can find the entry: /
 readdir: child: .
-readdir: child: hhh
+readdir: child: junk
 getattr: can find the entry: /
 getattr: can find the entry: /
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
 getattr: can find the entry: /
 getattr: can find the entry: /
 getattr: can find the entry: /
 getattr: can find the entry: /
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
 getattr: can find the entry: /
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-readdir: can find the entry: /hhh
+readdir: can find the entry: /
+readdir: child: .
+readdir: child: junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+getattr: can find the entry: /
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
 readdir: child: .
 readdir: child: ..
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-readdir: can find the entry: /hhh
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
 readdir: child: .
 readdir: child: ..
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-readdir: can find the entry: /hhh
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
 readdir: child: .
 readdir: child: ..
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
 getattr: can find the entry: /
 getattr: can find the entry: /
-	find dir by path: /hhh
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk/hhh
+	/hhh	junk	got it
+		hhh	ungot it
+getattr: can't find the entry: /junk/hhh
+mkdir: /junk/hhh
+get parent path: /junk/hhh 5
+	find dir by path: /junk
+		junk	got it
+mkdir: can find the parent: /junk
+add sub dir: junk -> hhh
+	find dir by path: /junk/hhh
+	/hhh	junk	got it
 		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
+getattr: can find the entry: /junk/hhh
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
+readdir: child: .
+readdir: child: ..
+readdir: child: hhh
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
+readdir: child: .
+readdir: child: ..
+readdir: child: hhh
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+getattr: can find the entry: /
+getattr: can find the entry: /
+	find dir by path: /junk/hhh
+	/hhh	junk	got it
 		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
+getattr: can find the entry: /junk/hhh
+	find dir by path: /junk/hhh
+	/hhh	junk	got it
 		hhh	got it
-getattr: can find the entry: /hhh
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
+getattr: can find the entry: /junk/hhh
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
 getattr: can find the entry: /
 getattr: can find the entry: /
 getattr: can find the entry: /
@@ -128,7 +240,82 @@ getattr: can find the entry: /
 getattr: can find the entry: /
 readdir: can find the entry: /
 readdir: child: .
-readdir: child: hhh
+readdir: child: junk
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+readdir: child: junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk/hhh
+	/hhh	junk	got it
+		hhh	got it
+getattr: can find the entry: /junk/hhh
+	find dir by path: /junk/hhh
+	/hhh	junk	got it
+		hhh	got it
+rmdir: can find the entry: /junk/hhh
+rmdir: can find dir parent: junk
+	find dir by path: /junk/hh
+	/hh	junk	got it
+		hh	ungot it
+getattr: can't find the entry: /junk/hh
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+readdir: child: junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+getattr: can find the entry: /
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
+readdir: child: .
+readdir: child: ..
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+getattr: can find the entry: /
+getattr: can find the entry: /
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+getattr: can find the entry: /
 getattr: can find the entry: /
 getattr: can find the entry: /
 getattr: can find the entry: /
@@ -137,13 +324,184 @@ getattr: can find the entry: /
 getattr: can find the entry: /
 readdir: can find the entry: /
 readdir: child: .
-readdir: child: hhh
+readdir: child: junk
 getattr: can find the entry: /
 getattr: can find the entry: /
-	find dir by path: /hhh
-		hhh	got it
-getattr: can find the entry: /hhh
 getattr: can find the entry: /
 getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+readdir: child: junk
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+readdir: child: junk
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+readdir: child: junk
+getattr: can find the entry: /
+readdir: can find the entry: /
+readdir: child: .
+readdir: child: junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+getattr: can find the entry: /
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+getattr: can find the entry: /
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
+readdir: child: .
+readdir: child: ..
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
+readdir: child: .
+readdir: child: ..
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
+readdir: child: .
+readdir: child: ..
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
+readdir: child: .
+readdir: child: ..
+	find dir by path: /junk/kkk
+	/kkk	junk	got it
+		kkk	ungot it
+getattr: can't find the entry: /junk/kkk
+mkdir: /junk/kkk
+get parent path: /junk/kkk 5
+	find dir by path: /junk
+		junk	got it
+mkdir: can find the parent: /junk
+add sub dir: junk -> kkk
+	find dir by path: /junk/kkk
+	/kkk	junk	got it
+		kkk	got it
+getattr: can find the entry: /junk/kkk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
+readdir: child: .
+readdir: child: ..
+readdir: child: kkk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+getattr: can find the entry: /
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+getattr: can find the entry: /junk
+	find dir by path: /junk
+		junk	got it
+readdir: can find the entry: /junk
+readdir: child: .
+readdir: child: ..
+readdir: child: kkk
 getattr: can find the entry: /
 getattr: can find the entry: /

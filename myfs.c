@@ -14,13 +14,6 @@
 static const char *hello_str = "Hello World!\n";
 static const char *hello_path = "/hello";
 
-static int my_rmdir(const char *path)
-{
-	int res;
-
-	return 0;
-}
-
 static const char* get_next_dir(const char* path, char* buf) {
 	// not /... or is / or is \0
 	if(path[0] != '/' || path[1] == '\0'
@@ -75,6 +68,67 @@ static directory_entry* find_dir_by_path(const char* path) {
 	}
 
 	return ret;
+}
+
+static int is_empty_dir(directory_entry* dir) {
+	directory_entry* child = dir->child_first;
+	for(; child; child = child->next) {
+		if(strcmp(child->name, "..") &&
+				strcmp(child->name, "."))
+			return 0;
+	}
+	return 1;
+}
+
+static directory_entry* find_dir_parent(directory_entry* dir) {
+	directory_entry* child = dir->child_first;
+	for(; child; child = child->next) {
+		if(strcmp(child->name, "..") == 0)
+			return child->real_dir;
+	}
+	return NULL;
+}
+
+static void rm_sub_dir(directory_entry* dir, directory_entry* child) {
+	directory_entry* before = dir->child_first;
+	while(before->next != child && before)
+		before = before->next;
+	if(!before) return;
+	before->next = child->next;
+}
+
+static void rm_dir(directory_entry* dir, int flag) {
+	if(!dir) return;
+
+	if(flag) rm_dir(dir->child_first, 0);
+	else rm_dir(dir->next, 0);
+	free(dir);
+}
+
+static int my_rmdir(const char *path)
+{
+	int res;
+	directory_entry* entry = find_dir_by_path(path);
+	
+	fprintf(FS.debug, "rmdir: %sfind the entry: %s\n", 
+			entry==NULL?"can't ":"can ", path);
+	fflush(FS.debug);
+
+	if(entry == NULL) return -ENOENT;
+	if(entry == FS.root) return -EACCES;
+	if(!is_empty_dir(entry)) return -ENOTEMPTY;
+
+	directory_entry* dir = find_dir_parent(entry);
+	
+	fprintf(FS.debug, "rmdir: %sfind dir parent: %s\n", 
+			dir==NULL?"can't ":"can ", dir->name);
+	fflush(FS.debug);
+
+	if(dir == NULL) return -ENOENT; 
+	rm_sub_dir(dir, entry);
+	rm_dir(entry, 1);
+
+	return 0;
 }
 
 static int my_getattr(const char *path, struct stat *stbuf)
@@ -196,8 +250,12 @@ static void get_parent_path(const char *path, char *parent, char *name) {
 	}
 	// path is /xxx/xxx/...
 	else {
+		fprintf(FS.debug, "get parent path: %s %d\n", 
+				path, next-path);
+		fflush(FS.debug);
+
 		strncpy(parent, path, next-path);
-		parent[next-path-1] = '\0';
+		parent[next-path] = '\0';
 	}
 	//get the new dir name
 	strncpy(name, next + 1, i-next);
