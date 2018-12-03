@@ -1,4 +1,3 @@
-
 #define NAME_LENGTH 24
 #define BLOCK_SIZE 512
 #define BLOCK_NUMBER 0x00100000

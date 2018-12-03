@@ -316,6 +316,11 @@ static int my_write (const char *path, const char *buf, size_t size,
 	if (file == NULL) return -ENOENT;
 	if (file->flags == 1) return -EISDIR;
 
+	fprintf(FS.debug, "write: length: %d\n", size);
+	fflush(FS.debug);
+
+	file->file_length = size;
+
 	return 0;
 }
 
@@ -373,6 +378,13 @@ static int my_chown(const char * path, uid_t uid, gid_t gid) {
 static int my_truncate(const char * path, off_t off) {
 	fprintf(FS.debug, "truncate: %s\n", path);
    	fflush(FS.debug);	
+	/*
+	directory_entry* file = find_dir_by_path(path);
+	if (file == NULL) return -ENOENT;
+	if (file->flags == 1) return -EISDIR;
+
+	file->file_length = off;
+	*/
 	return 0;
 }
 
