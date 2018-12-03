@@ -11,9 +11,6 @@
 
 #include "myfs.h"
 
-static const char *hello_str = "Hello World!\n";
-static const char *hello_path = "/hello";
-
 static const char* get_next_dir(const char* path, char* buf) {
 	// not /... or is / or is \0
 	if(path[0] != '/' || path[1] == '\0'
@@ -143,10 +140,15 @@ static int my_getattr(const char *path, struct stat *stbuf)
 	if(entry == NULL) return -ENOENT;
 
 	memset(stbuf, 0, sizeof(struct stat));
-	stbuf->st_mode = 0755;
-   	if(entry->flags == 1) stbuf->st_mode |= S_IFDIR;
-	stbuf->st_nlink = 2;
-	stbuf->st_size = entry->file_length;
+	if(entry->flags == 1) {
+		stbuf->st_mode = S_IFDIR | 0755;
+		stbuf->st_nlink = 2;
+	} 
+	else {
+		stbuf->st_mode = S_IFREG | 0666;
+		stbuf->st_nlink = 1;
+		stbuf->st_size = entry->file_length;
+	}
 
 	return res;
 }
@@ -178,51 +180,6 @@ static int my_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	return 0;
 }
 
-static int my_open(const char *path, struct fuse_file_info *fi)
-{
-	directory_entry* entry = find_dir_by_path(path);
-	
-	fprintf(FS.debug, "open: %sfind the entry: %s\n", 
-			entry==NULL?"can't ":"can ", path);
-	fflush(FS.debug);
-
-	if (entry == NULL) return -ENOENT;
-
-	/*
-	if (strcmp(path, hello_path) != 0)
-		return -ENOENT;
-
-	if ((fi->flags & 3) != O_RDONLY)
-		return -EACCES;
-*/
-	return 0;
-}
-
-static int my_read(const char *path, char *buf, size_t size, off_t offset,
-		      struct fuse_file_info *fi)
-{
-	size_t len;
-	(void) fi;
-		
-	directory_entry* entry = find_dir_by_path(path);
-	
-	fprintf(FS.debug, "read: %sfind the entry: %s\n", 
-			entry==NULL?"can't ":"can ", path);
-	fflush(FS.debug);
-
-	if (entry == NULL) return -ENOENT;
-
-	len = strlen(hello_str);
-	if (offset < len) {
-		if (offset + size > len)
-			size = len - offset;
-		memcpy(buf, hello_str + offset, size);
-	} else
-		size = 0;
-
-	return size;
-}
-
 directory_entry* new_entry(char* name) {
 	directory_entry* ret = (directory_entry*) malloc(sizeof(directory_entry));
 	time_t t = time(NULL);
@@ -230,6 +187,12 @@ directory_entry* new_entry(char* name) {
 	ret->create_t = ret->modify_t = ret->access_t = t;
 	ret->flags = 1;
 	return ret;
+}
+
+directory_entry* new_file(char* name) {
+	directory_entry* file = new_entry(name);
+	file->flags = 0;
+	return file;
 }
 
 directory_entry* new_directory_entry(char* name) {
@@ -279,6 +242,17 @@ static void add_sub_dir(directory_entry* dir, directory_entry* child) {
 	last->next->real_dir = dir;
 }
 
+static void add_sub_file(directory_entry* dir, directory_entry* child) {
+	fprintf(FS.debug, "add sub file: %s -> %s\n", 
+			dir->name, child->name);
+	fflush(FS.debug);
+	
+	// add child to dir's last child
+	directory_entry* last = dir->child_first;
+	while(last->next) last = last->next;
+	last->next = child;
+}
+
 static int my_mkdir(const char *path, mode_t mode) {
 	int res;
 
@@ -301,6 +275,107 @@ static int my_mkdir(const char *path, mode_t mode) {
 	return 0;
 }
 
+static int my_open(const char *path, struct fuse_file_info *fi) {
+	directory_entry* entry = find_dir_by_path(path);
+	
+	fprintf(FS.debug, "open: %sfind the entry: %s\n", 
+			entry==NULL?"can't ":"can ", path);
+	fflush(FS.debug);
+
+	if (entry == NULL) return -ENOENT;
+	if (entry && entry->flags == 1) return -EISDIR;
+
+	return 0;
+}
+
+static int my_read(const char *path, char *buf, size_t size, off_t offset,
+		      struct fuse_file_info *fi) {
+	size_t len;
+	(void) fi;
+		
+	directory_entry* entry = find_dir_by_path(path);
+	
+	fprintf(FS.debug, "read: %sfind the entry: %s\n", 
+			entry==NULL?"can't ":"can ", path);
+	fflush(FS.debug);
+	if (entry == NULL) return -ENOENT;
+	if (entry->flags == 1) return -EISDIR;
+
+	strncpy(buf, "hello, this is yilin.\n", size);
+
+	return size;
+}
+
+static int my_write (const char *path, const char *buf, size_t size, 
+		off_t offset, struct fuse_file_info *fi) {
+	directory_entry* file = find_dir_by_path(path);
+	
+	fprintf(FS.debug, "write: %sfind the file: %s\n", 
+			file==NULL?"can't ":"can ", path);
+	fflush(FS.debug);
+	if (file == NULL) return -ENOENT;
+	if (file->flags == 1) return -EISDIR;
+
+	return 0;
+}
+
+static int my_create (const char *path, mode_t mode, 
+		struct fuse_file_info *fi) {
+	char parent[256], name[NAME_LENGTH];
+	get_parent_path(path, parent, name);
+
+	directory_entry* entry = find_dir_by_path(parent);
+		
+	fprintf(FS.debug, "create: %sfind the parent: %s\n", 
+			entry==NULL?"can't ":"can ", parent);
+	fflush(FS.debug);
+	if (entry == NULL) return -ENOENT;
+	if (entry && entry->flags == 0) return -ENOENT;
+
+	directory_entry* file = new_file(name);
+	add_sub_file(entry, file);
+	
+	return 0;
+}
+
+static int my_utimens(const char *path, const struct timespec tv[2]) {
+	directory_entry* dir = find_dir_by_path(path);
+		
+	fprintf(FS.debug, "utimens: %sfind the entry: %s\n", 
+			dir==NULL?"can't ":"can ", path);
+	fflush(FS.debug);
+	if (dir == NULL) return -ENOENT;
+
+	dir->access_t = tv[0].tv_sec;
+	dir->modify_t = tv[1].tv_sec;
+
+	return 0;
+}
+
+static int my_mknod(const char * path, mode_t mode, dev_t dev) {
+	fprintf(FS.debug, "mknod: %s\n", path);
+   	fflush(FS.debug);	
+	return 0;
+}
+
+static int my_chmod(const char * path, mode_t mode) {
+	fprintf(FS.debug, "chmod: %s\n", path);
+   	fflush(FS.debug);	
+	return 0;
+}
+
+static int my_chown(const char * path, uid_t uid, gid_t gid) {
+	fprintf(FS.debug, "chown: %s\n", path);
+   	fflush(FS.debug);	
+	return 0;
+}
+
+static int my_truncate(const char * path, off_t off) {
+	fprintf(FS.debug, "truncate: %s\n", path);
+   	fflush(FS.debug);	
+	return 0;
+}
+
 char* disk_name = "mountpoint/disk"; 
 static void init() {
 	FS.root = new_directory_entry("");
@@ -315,8 +390,16 @@ static struct fuse_operations my_oper = {
 	.readdir	= my_readdir,
 	.rmdir		= my_rmdir,
 	.mkdir		= my_mkdir,
+	.mknod		= my_mknod,
+	.utimens	= my_utimens,
+	.chmod		= my_chmod,
+	.chown		= my_chown,
+	.truncate	= my_truncate,
+	.create		= my_create,
 	.open		= my_open,
+	.write		= my_write,
 	.read		= my_read,
+	//	.unlink		= my_unlink,
 };
 
 int main(int argc, char *argv[])
