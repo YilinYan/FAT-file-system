@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <stddef.h>
 
 #include "myfs.h"
 
@@ -149,6 +150,9 @@ static int my_getattr(const char *path, struct stat *stbuf)
 		stbuf->st_nlink = 1;
 		stbuf->st_size = entry->file_length;
 	}
+	stbuf->st_atime = entry->access_t;
+	stbuf->st_mtime = entry->modify_t;
+	stbuf->st_ctime = entry->create_t;
 
 	return res;
 }
@@ -275,6 +279,26 @@ static int my_mkdir(const char *path, mode_t mode) {
 	return 0;
 }
 
+static int open_device(int flags) {
+	int fd;
+	if(!FS.init) {
+		FS.init = 1;
+		
+		fd = open(FS.disk, O_RDWR | O_CREAT);
+		lseek(fd, BLOCK_NUMBER * BLOCK_SIZE, SEEK_SET);
+		char* wr = "\0\0\0\0";
+		write(fd, &wr, 4);
+		close(fd);
+
+		fprintf(FS.debug, "disk init at %d * %d\n",
+				BLOCK_NUMBER, BLOCK_SIZE);
+		fflush(FS.debug);
+	}
+
+	fd = open(FS.disk, flags);
+	return fd;
+}
+
 static int my_open(const char *path, struct fuse_file_info *fi) {
 	directory_entry* entry = find_dir_by_path(path);
 	
@@ -287,6 +311,7 @@ static int my_open(const char *path, struct fuse_file_info *fi) {
 
 	return 0;
 }
+
 
 static int my_read(const char *path, char *buf, size_t size, off_t offset,
 		      struct fuse_file_info *fi) {
@@ -306,6 +331,51 @@ static int my_read(const char *path, char *buf, size_t size, off_t offset,
 	return size;
 }
 
+static int my_min(size_t a, size_t b) {
+	if(a > b) return b;
+	return a;
+}
+
+static int find_free_block(int fd) {
+	int32_t next = 0;
+	lseek(fd, BLOCK_SIZE + FS.free_cur * 4, SEEK_SET);
+	read(fd, &next, sizeof(next));
+
+	fprintf(FS.debug, "find free begin at %d + 4 * %zu, next = %d\n",
+			BLOCK_SIZE, FS.free_cur, next);
+	fflush(FS.debug);
+
+	while(next != 0) {
+		if(++FS.free_cur >= BLOCK_NUMBER) return 0;
+
+		lseek(fd, sizeof(next), SEEK_CUR);
+		read(fd, &next, sizeof(next));
+		
+		fprintf(FS.debug, "\tnext is %d at %zu\n", next, FS.free_cur);
+		fflush(FS.debug);
+	}
+	
+	return FS.free_cur;
+}
+
+static void set_last_block(int fd, int last) {
+	fprintf(FS.debug, "last block %d\n", last);
+	fflush(FS.debug);
+	
+	int32_t next = -2;
+	lseek(fd, BLOCK_SIZE + last * 4, SEEK_SET);
+	write(fd, &next, sizeof(next));
+}
+
+static void set_next_block(int fd, int last, int nxt) {
+	fprintf(FS.debug, "next block %d -> %d\n", last, nxt);
+	fflush(FS.debug);
+	
+	int32_t next = nxt;
+	lseek(fd, BLOCK_SIZE + last * 4, SEEK_SET);
+	write(fd, &next, sizeof(next));
+}
+
 static int my_write (const char *path, const char *buf, size_t size, 
 		off_t offset, struct fuse_file_info *fi) {
 	directory_entry* file = find_dir_by_path(path);
@@ -316,10 +386,42 @@ static int my_write (const char *path, const char *buf, size_t size,
 	if (file == NULL) return -ENOENT;
 	if (file->flags == 1) return -EISDIR;
 
-	fprintf(FS.debug, "write: length: %d\n", size);
+	fprintf(FS.debug, "write: length: %zu\n", size);
 	fflush(FS.debug);
 
 	file->file_length = size;
+
+	int fd = open_device(O_RDWR);
+	if(fd == -1) {
+		fprintf(stderr, "write fail to open %s: size %zu\n", FS.disk, size);
+		return -ENODEV;
+	}
+
+	int last_block = 0;
+	while(size) {
+		int block_nr = find_free_block(fd);
+		int wr_size = my_min(size, BLOCK_SIZE);
+		if(!block_nr) return -ENOSPC;
+
+		fprintf(FS.debug, "write: wr_size %d at %d * %d\n", 
+				wr_size, block_nr, BLOCK_SIZE);
+		fflush(FS.debug);
+
+		lseek(fd, block_nr * BLOCK_SIZE, SEEK_SET);
+		write(fd, buf, wr_size);
+
+		size -= wr_size;
+		buf += wr_size;
+	
+		set_last_block(fd, block_nr);
+		if(last_block) 
+			set_next_block(fd, last_block, block_nr);
+		else
+			file->start_block = block_nr;
+		last_block = block_nr;
+	}
+
+	close(fd);
 
 	return 0;
 }
@@ -388,13 +490,16 @@ static int my_truncate(const char * path, off_t off) {
 	return 0;
 }
 
-char* disk_name = "mountpoint/disk"; 
+char* disk_name = "disk"; 
 static void init() {
 	FS.root = new_directory_entry("");
-	FS.disk = disk_name;
+	FS.disk = disk_name + 11;
 	FS.debug = fopen("debug", "w+");
-	int fd = open(FS.disk, O_CREAT | O_RDWR);
-	close(fd);
+	FS.K = 4 * BLOCK_NUMBER / BLOCK_SIZE;
+	FS.free_cur = FS.K + 1;
+
+	fprintf(FS.debug, "init: K is %zu\n", FS.K);
+	fflush(FS.debug);
 }
 
 static struct fuse_operations my_oper = {

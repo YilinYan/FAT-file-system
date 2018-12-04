@@ -19,6 +19,9 @@ struct _global_variables {
 	directory_entry* root; 	// directory_entry of root
 	char* disk;				// name of disk file
 	FILE* debug;		    // FILE* of debug file
+	size_t K;
+	size_t free_cur;
+	int init;
 } FS;
 
 

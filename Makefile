@@ -6,7 +6,7 @@ all: myfs.c myfs.h
 test: myfs.c myfs.h
 	cc myfs.c -o myfs `pkgconf fuse --cflags --libs`
 
-example=fsel.c
+example=fat.c
 
 xmp: $(example)
 	cc $(example) -o xmpprog `pkgconf fuse --cflags --libs`

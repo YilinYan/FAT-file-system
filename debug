@@ -1,249 +1,52 @@
+init: K is 8192
 getattr: can find the entry: /
 getattr: can find the entry: /
-	find dir by path: /1.txt
-		1.txt	ungot it
-getattr: can't find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	ungot it
-getattr: can't find the entry: /1.txt
+	find dir by path: /1
+		1	ungot it
+getattr: can't find the entry: /1
 create: can find the parent: /
-add sub file:  -> 1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-truncate: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-write: can find the file: /1.txt
-write: length: 6
-getattr: can find the entry: /
-readdir: can find the entry: /
-readdir: child: .
-readdir: child: 1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-read: can find the entry: /1.txt
-truncate: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-truncate: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-write: can find the file: /1.txt
-write: length: 11
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-truncate: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-write: can find the file: /1.txt
-write: length: 13
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-readdir: can find the entry: /
-readdir: child: .
-readdir: child: 1.txt
-getattr: can find the entry: /
-getattr: can find the entry: /
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-	find dir by path: /-la
-		-la	ungot it
-getattr: can't find the entry: /-la
-	find dir by path: /-la
-		-la	ungot it
-getattr: can't find the entry: /-la
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-getattr: can find the entry: /
-readdir: can find the entry: /
-readdir: child: .
-readdir: child: 1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-read: can find the entry: /1.txt
-truncate: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-getattr: can find the entry: /
-readdir: can find the entry: /
-readdir: child: .
-readdir: child: 1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-truncate: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-write: can find the file: /1.txt
-write: length: 5
-getattr: can find the entry: /
-readdir: can find the entry: /
-readdir: child: .
-readdir: child: 1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-read: can find the entry: /1.txt
-truncate: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-truncate: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-write: can find the file: /1.txt
-write: length: 8
-getattr: can find the entry: /
-readdir: can find the entry: /
-readdir: child: .
-readdir: child: 1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-open: can find the entry: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-read: can find the entry: /1.txt
-truncate: /1.txt
-	find dir by path: /1.txt
-		1.txt	got it
-	find dir by path: /1.txt
-		1.txt	got it
-getattr: can find the entry: /1.txt
+add sub file:  -> 1
+	find dir by path: /1
+		1	got it
+getattr: can find the entry: /1
+	find dir by path: /1
+		1	got it
+getattr: can find the entry: /1
+	find dir by path: /1
+		1	got it
+getattr: can find the entry: /1
+	find dir by path: /1
+		1	got it
+write: can find the file: /1
+write: length: 10
+disk init at 1048576 * 512
+find free begin at 512 + 4 * 8193, next = -2
+	next is -2 at 8194
+	next is 0 at 8195
+write: wr_size 10 at 8195 * 512
+last block 8195
+	find dir by path: /1
+		1	got it
+getattr: can find the entry: /1
+	find dir by path: /1
+		1	got it
+open: can find the entry: /1
+truncate: /1
+	find dir by path: /1
+		1	got it
+getattr: can find the entry: /1
+	find dir by path: /1
+		1	got it
+getattr: can find the entry: /1
+	find dir by path: /1
+		1	got it
+write: can find the file: /1
+write: length: 10
+find free begin at 512 + 4 * 8195, next = -2
+	next is 0 at 8196
+write: wr_size 10 at 8196 * 512
+last block 8196
+truncate: /1
+	find dir by path: /1
+		1	got it
+getattr: can find the entry: /1
