@@ -12,6 +12,19 @@
 
 #include "myfs.h"
 
+static int my_truncate(const char * path, off_t off) {
+	fprintf(FS.debug, "truncate: %s\n", path);
+   	fflush(FS.debug);	
+	/*
+	directory_entry* file = find_dir_by_path(path);
+	if (file == NULL) return -ENOENT;
+	if (file->flags == 1) return -EISDIR;
+
+	file->file_length = off;
+	*/
+	return 0;
+}
+
 static const char* get_next_dir(const char* path, char* buf) {
 	// not /... or is / or is \0
 	if(path[0] != '/' || path[1] == '\0'
@@ -148,8 +161,8 @@ static int my_getattr(const char *path, struct stat *stbuf)
 	else {
 		stbuf->st_mode = S_IFREG | 0666;
 		stbuf->st_nlink = 1;
-		stbuf->st_size = entry->file_length;
 	}
+	stbuf->st_size = entry->file_length;
 	stbuf->st_atime = entry->access_t;
 	stbuf->st_mtime = entry->modify_t;
 	stbuf->st_ctime = entry->create_t;
@@ -157,9 +170,30 @@ static int my_getattr(const char *path, struct stat *stbuf)
 	return res;
 }
 
+static struct stat* get_dir_attr(directory_entry* entry) {
+	if(entry == NULL) return NULL;
+
+	struct stat* stbuf = (struct stat*) malloc(sizeof(struct stat));
+	memset(stbuf, 0, sizeof(struct stat));
+
+	if(entry->flags == 1) {
+		stbuf->st_mode = S_IFDIR | 0755;
+		stbuf->st_nlink = 2;
+	} 
+	else {
+		stbuf->st_mode = S_IFREG | 0666;
+		stbuf->st_nlink = 1;
+	}
+	stbuf->st_size = entry->file_length;
+	stbuf->st_atime = entry->access_t;
+	stbuf->st_mtime = entry->modify_t;
+	stbuf->st_ctime = entry->create_t;
+	
+	return stbuf;
+}
+
 static int my_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
-			 off_t offset, struct fuse_file_info *fi)
-{
+			 off_t offset, struct fuse_file_info *fi) {
 	(void) offset;
 	(void) fi;
 
@@ -178,7 +212,7 @@ static int my_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 				child->name);
 		fflush(FS.debug);
 
-		filler(buf, child->name, NULL, 0);
+		filler(buf, child->name, get_dir_attr(child), 0);
 	}
 
 	return 0;
@@ -217,7 +251,7 @@ static void get_parent_path(const char *path, char *parent, char *name) {
 	}
 	// path is /xxx/xxx/...
 	else {
-		fprintf(FS.debug, "get parent path: %s %d\n", 
+		fprintf(FS.debug, "get parent path: %s %ld\n", 
 				path, next-path);
 		fflush(FS.debug);
 
@@ -284,6 +318,7 @@ static int open_device(int flags) {
 	if(!FS.init) {
 		FS.init = 1;
 		
+		unlink(FS.disk);
 		fd = open(FS.disk, O_RDWR | O_CREAT);
 		lseek(fd, BLOCK_NUMBER * BLOCK_SIZE, SEEK_SET);
 		char* wr = "\0\0\0\0";
@@ -312,28 +347,66 @@ static int my_open(const char *path, struct fuse_file_info *fi) {
 	return 0;
 }
 
-
-static int my_read(const char *path, char *buf, size_t size, off_t offset,
-		      struct fuse_file_info *fi) {
-	size_t len;
-	(void) fi;
-		
-	directory_entry* entry = find_dir_by_path(path);
-	
-	fprintf(FS.debug, "read: %sfind the entry: %s\n", 
-			entry==NULL?"can't ":"can ", path);
-	fflush(FS.debug);
-	if (entry == NULL) return -ENOENT;
-	if (entry->flags == 1) return -EISDIR;
-
-	strncpy(buf, "hello, this is yilin.\n", size);
-
-	return size;
-}
-
 static int my_min(size_t a, size_t b) {
 	if(a > b) return b;
 	return a;
+}
+
+static int find_next_block(int fd, int last) {
+	int32_t next = 0;
+	lseek(fd, BLOCK_SIZE + last * 4, SEEK_SET);
+	read(fd, &next, sizeof(next));
+
+	fprintf(FS.debug, "find next block: %d -> %d\n",
+			last, next);
+	fflush(FS.debug);
+
+	if(next == 0 || next == -2 || next == -1)
+		return 0;
+	return next;
+}
+
+static int my_read(const char *path, char *buf, size_t size, off_t offset,
+		      struct fuse_file_info *fi) {
+	directory_entry* file = find_dir_by_path(path);
+	
+	fprintf(FS.debug, "read: %sfind the file: %s\n", 
+			file==NULL?"can't ":"can ", path);
+	fflush(FS.debug);
+	if (file == NULL) return -ENOENT;
+	if (file->flags == 1) return -EISDIR;
+
+	int fd = open_device(O_RDONLY);
+	if(fd == -1) {
+		fprintf(stderr, "read fail to open %s: size %zu\n", FS.disk, size);
+		return -ENODEV;
+	}
+
+	size_t ret_size = my_min(size, file->file_length);
+	size = ret_size;
+
+	int last_block = 0;
+	while(size) {
+		int rd_size = my_min(size, BLOCK_SIZE);
+		int block_nr;
+		if(last_block) block_nr = find_next_block(fd, last_block);
+		else block_nr = file->start_block;
+		if(!block_nr) return -ENOSPC;
+
+		fprintf(FS.debug, "read: rd_size %d at %d * %d\n", 
+				rd_size, block_nr, BLOCK_SIZE);
+		fflush(FS.debug);
+
+		lseek(fd, block_nr * BLOCK_SIZE, SEEK_SET);
+		read(fd, buf, rd_size);
+
+		size -= rd_size;
+		buf += rd_size;
+	
+		last_block = block_nr;
+	}
+
+	return ret_size;
 }
 
 static int find_free_block(int fd) {
@@ -423,7 +496,7 @@ static int my_write (const char *path, const char *buf, size_t size,
 
 	close(fd);
 
-	return 0;
+	return size;
 }
 
 static int my_create (const char *path, mode_t mode, 
@@ -474,19 +547,6 @@ static int my_chmod(const char * path, mode_t mode) {
 static int my_chown(const char * path, uid_t uid, gid_t gid) {
 	fprintf(FS.debug, "chown: %s\n", path);
    	fflush(FS.debug);	
-	return 0;
-}
-
-static int my_truncate(const char * path, off_t off) {
-	fprintf(FS.debug, "truncate: %s\n", path);
-   	fflush(FS.debug);	
-	/*
-	directory_entry* file = find_dir_by_path(path);
-	if (file == NULL) return -ENOENT;
-	if (file->flags == 1) return -EISDIR;
-
-	file->file_length = off;
-	*/
 	return 0;
 }
 
