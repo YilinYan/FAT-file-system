@@ -463,6 +463,7 @@ static int my_write (const char *path, const char *buf, size_t size,
 	fflush(FS.debug);
 
 	file->file_length = size;
+	int ret_size = size;
 
 	int fd = open_device(O_RDWR);
 	if(fd == -1) {
@@ -496,7 +497,7 @@ static int my_write (const char *path, const char *buf, size_t size,
 
 	close(fd);
 
-	return size;
+	return ret_size;
 }
 
 static int my_create (const char *path, mode_t mode, 
