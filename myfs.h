@@ -1,6 +1,6 @@
 #define NAME_LENGTH 24
-#define BLOCK_SIZE 512
-#define BLOCK_NUMBER 0x00100000
+#define BLOCK_SIZE 1024
+#define BLOCK_NUMBER 0x00010000
 
 typedef struct _directory_entry {
 	char name[NAME_LENGTH];	// file name

@@ -449,6 +449,17 @@ static void set_next_block(int fd, int last, int nxt) {
 	write(fd, &next, sizeof(next));
 }
 
+static void erase_block(int fd, int block_nr) {
+	if(block_nr <= 0) return;
+	fprintf(FS.debug, "erase block %d\n", block_nr);
+	fflush(FS.debug);
+
+	int nxt = find_next_block(fd, block_nr);
+	set_next_block(fd, block_nr, 0);
+
+	erase_block(fd, nxt);
+}
+
 static int my_write (const char *path, const char *buf, size_t size, 
 		off_t offset, struct fuse_file_info *fi) {
 	directory_entry* file = find_dir_by_path(path);
@@ -498,6 +509,30 @@ static int my_write (const char *path, const char *buf, size_t size,
 	close(fd);
 
 	return ret_size;
+}
+
+static int my_unlink (const char* path) {
+	char parent[256], name[NAME_LENGTH];
+	get_parent_path(path, parent, name);
+
+	directory_entry* entry = find_dir_by_path(parent);	
+	directory_entry* file = find_dir_by_path(path);
+
+	if(!entry || !file) return -ENOENT;
+
+	fprintf(FS.debug, "unlink: %s\n", path);
+	fflush(FS.debug);
+
+	// erase fat
+	int fd = open_device(O_RDWR);
+	int block_nr = file->start_block;
+	erase_block(fd, block_nr);
+	close(fd);
+
+	// delete in dir structure
+	rm_sub_dir(entry, file);
+	rm_dir(file, 1);
+	return 0;
 }
 
 static int my_create (const char *path, mode_t mode, 
@@ -577,7 +612,7 @@ static struct fuse_operations my_oper = {
 	.open		= my_open,
 	.write		= my_write,
 	.read		= my_read,
-	//	.unlink		= my_unlink,
+	.unlink		= my_unlink,
 };
 
 int main(int argc, char *argv[])

@@ -1,6 +1,7 @@
 Mountpoint=mountpoint
 
 all: myfs.c myfs.h $(Mountpoint)
+	pkill myserver || true
 	cc myfs.c -o myfs `pkgconf fuse --cflags --libs`
 	kldload -n fuse
 	./myfs $(Mountpoint)
@@ -8,13 +9,11 @@ all: myfs.c myfs.h $(Mountpoint)
 mountpoint:
 	mkdir mountpoint
 
-test: myfs.c myfs.h
+compile: myfs.c myfs.h
 	cc myfs.c -o myfs `pkgconf fuse --cflags --libs`
 
-example=hello.c
+test:
+	sh test.sh
 
-xmp: $(example)
-	cc $(example) -o xmpprog `pkgconf fuse --cflags --libs`
-	kldload -n fuse
-	./xmpprog example
-
+clean:
+	rm myfs
